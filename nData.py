@@ -25,10 +25,7 @@ for row in csv_file_obj:
         except ValueError:
             # if that didn't work, then the element may yet be a float
             try:
-                data = float(element)
-            # if that still didn't work, then the data is either a string or None.
-            # TODO: possibly do something about None-esque values, deleting rows
-            # or using averages instead
+                data = int(element)
             except ValueError:
                 data = element
 
@@ -59,4 +56,3 @@ for j in range(len(data[0])):
 print(data)
 
 np.savetxt("data/nQuiz.csv", data, delimiter=",",fmt="%02d")
-
