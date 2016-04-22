@@ -8,11 +8,12 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
 import numpy
-
+from cleandata import get_data
 def main():
-    X = loadTrainingData()
-    Y = loadTrainingLabels()
-    
+    data = get_data('data') 
+    X = data[:-1]
+    y = data[-1]
+     
     # Training classifier
     clf1 = DecisionTreeClassifier(max_depth=4)
     clf2 = KNeighborsClassifier(n_neighbors=7)
@@ -22,11 +23,8 @@ def main():
     clf2 = clf2.fit(X,y)
     clf3 = clf3.fit(X,y)    
     eclf = eclf.fit(X,y)
+    y_hat = eclf.predict(X) 
 
-def loadTrainingData():
     
-
-
-if __name__ == "__main__":
-    main()
+main()
 
