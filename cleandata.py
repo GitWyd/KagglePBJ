@@ -47,3 +47,25 @@ def get_data(datafile):
             else:
                 data[i][j]=seenWords[data[i][j]]
     return data
+def store_data(datafile, data):
+    filename = "data/" + datafile
+    for j in range(len(data[0])):
+        counter = 0
+        seenWords = {}
+        if not isinstance(data[0][j], str):
+            continue
+        for i in range(len(data)):
+            if data[i][j] not in seenWords:
+                #print(data[i][j])
+                seenWords.update({data[i][j]:counter})
+
+                data[i][j]  = counter
+                counter += 1
+
+                #print(data[i][j])
+            else:
+                data[i][j]=seenWords[data[i][j]]
+    print(data)
+    np.savetxt(filename, data, delimiter=",",fmt="%02d")
+            
+
