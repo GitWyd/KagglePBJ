@@ -25,7 +25,7 @@ for row in csv_file_obj:
         except ValueError:
             # if that didn't work, then the element may yet be a float
             try:
-                data = int(element)
+                data = float(element)
             except ValueError:
                 data = element
 
@@ -46,10 +46,10 @@ for j in range(len(data[0])):
         if data[i][j] not in seenWords:
             #print(data[i][j])
             seenWords.update({data[i][j]:counter})
-            
+
             data[i][j]  = counter
             counter += 1
-            
+
             #print(data[i][j])
         else:
             data[i][j]=seenWords[data[i][j]]
