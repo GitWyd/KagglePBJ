@@ -8,7 +8,7 @@ Created on Fri Apr 22 00:37:09 2016
 import csv
 import numpy as np
 
-csv_file_obj = csv.reader(open('data/data.csv', 'r'))
+csv_file_obj = csv.reader(open('data/quiz.csv', 'r'))
 header = next(csv_file_obj)
 # doesn't seem like it does anything
 # convert the data
@@ -58,5 +58,5 @@ for j in range(len(data[0])):
             data[i][j]=seenWords[data[i][j]]
 print(data)
 
-np.savetxt("data/nData.csv", data, delimiter=",",fmt="%02d")
+np.savetxt("data/nQuiz.csv", data, delimiter=",",fmt="%02d")
 
