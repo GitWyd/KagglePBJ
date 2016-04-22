@@ -58,4 +58,5 @@ for j in range(len(data[0])):
             data[i][j]=seenWords[data[i][j]]
 print(data)
 
-#fnew = open("numData.csv","w")
+np.savetxt("data/nData.csv", data, delimiter=",",fmt="%02d")
+
