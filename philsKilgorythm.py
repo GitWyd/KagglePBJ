@@ -9,11 +9,14 @@ from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
 import numpy
 from cleandata import get_data
+from cleandata import store_data
+
 def main():
     data = get_data('data') 
-    X = data[:-1]
-    y = data[-1]
-     
+    X = data[0:1000,0:-1] 
+    y = [lbl for lbl in data[0:1000,-1]]
+    print(X.shape)
+    print(len(y))
     # Training classifier
     clf1 = DecisionTreeClassifier(max_depth=4)
     clf2 = KNeighborsClassifier(n_neighbors=7)
@@ -24,7 +27,8 @@ def main():
     clf3 = clf3.fit(X,y)    
     eclf = eclf.fit(X,y)
     y_hat = eclf.predict(X) 
-
-    
+    print(y_hat) 
+    #store_data("killerFile",y_hat)
+        
 main()
 
