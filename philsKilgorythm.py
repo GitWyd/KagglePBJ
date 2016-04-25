@@ -63,7 +63,7 @@ def main():
         test_err += (yi == y_hati) 
     test_err /= X_test.shape[0] 
     print("test: " + str(test_err))
-    store_csv(y_test_hat)  
+    store_csv(y_test_hat, "killgorythm_prediciton")  
 main()
 '''
     # update weights with validation data sets

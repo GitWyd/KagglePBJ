@@ -72,6 +72,7 @@ def store_data(datafile, data):
 '''
 def store_csv(y_hat, filename):
     outfile = filename + ".csv"
-    file = open(outfile, 'w+') 
+    file = open(outfile, 'w+')
+    file.write("Id,Prediction\n")
     for i, yi in enumerate(y_hat):
         file.write(str(i) + "," + str(yi) + "\n")
