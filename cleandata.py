@@ -5,7 +5,7 @@ def get_data(datafile):
     if datafile not in ['quiz', 'data']:
         print('Enter "quiz" or "data" you moron')
         return []
-    csv_file_obj = csv.reader(open('data/'+datafile+'.csv', 'r'))
+    csv_file_obj = csv.reader(open('data/'+ datafile +'.csv', 'r'))
     header = next(csv_file_obj)
     # doesn't seem like it does anything
     # convert the data
@@ -67,5 +67,11 @@ def store_data(datafile, data):
                 data[i][j]=seenWords[data[i][j]]
     print(data)
     np.savetxt(filename, data, delimiter=",",fmt="%02d")
-            
-
+''' 
+        creates prediction csv file for submission
+'''
+def store_csv(y_hat, filename):
+    outfile = filename + ".csv"
+    file = open(outfile, 'w+') 
+    for i, yi in enumerate(y_hat):
+        file.write(str(i) + "," + str(yi) + "\n")
