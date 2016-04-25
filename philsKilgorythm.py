@@ -25,17 +25,19 @@ def main():
     # Training classifier
     # declaring weights
     w = [1,1,1] 
-    clf1 = DecisionTreeClassifier(max_depth=5)
-    clf2 = KNeighborsClassifier(n_neighbors=5)
+    clf1 = DecisionTreeClassifier(max_depth=6)
+    clf2 = KNeighborsClassifier(n_neighbors=8)
     clf3 = SVC(kernel='rbf', probability=True)
     clf4 = OrthogonalMatchingPursuit(n_nonzero_coefs=None, tol=None, fit_intercept=True, normalize=True, precompute='auto')
-    clf5 = Perceptron(penalty=None, alpha=0.0001, fit_intercept=True, n_iter=6, shuffle=True, verbose=0, eta0=1.0, n_jobs=-1, random_state=0, class_weight=None, warm_start=False)
+    clf5 = Perceptron(penalty=None, alpha=0.0001, fit_intercept=True, n_iter=7, shuffle=True, verbose=0, eta0=1.0, n_jobs=-1, random_state=0, class_weight=None, warm_start=True)
     eclf = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft', weights=w)
+    # fit sub-classifiers
     clf1 = clf1.fit(X,y)
     clf2 = clf2.fit(X,y)
     clf3 = clf3.fit(X,y)
     clf4 = clf4.fit(X,y)
     clf5 = clf5.fit(X,y)
+    # fit voting classifier
     eclf = eclf.fit(X,y)
 
     # predict & calculate training error
@@ -49,6 +51,7 @@ def main():
     # validation data - calculate valdiation error
     val_start = train_size
     val_end = train_size + val_size
+    
     # get validation data set
     X_val = data[val_start:val_end,0:-1] 
     y_val = [lbl for lbl in data[val_start:val_end,-1]]
