@@ -4,10 +4,8 @@
 
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.linear_model import OrthogonalMatchingPursuit
-from sklearn.linear_model import Perceptron 
+from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import VotingClassifier
 import numpy
 from cleandata import get_data
@@ -23,25 +21,16 @@ def main():
     print(X.shape)
     print(len(y))
     # Training classifier
-    # declaring weights
-    w = [1,1,1] 
-    clf1 = DecisionTreeClassifier(max_depth=6)
-    clf2 = KNeighborsClassifier(n_neighbors=8)
-    clf3 = SVC(kernel='rbf', probability=True)
-    clf4 = OrthogonalMatchingPursuit(n_nonzero_coefs=None, tol=None, fit_intercept=True, normalize=True, precompute='auto')
-    clf5 = Perceptron(penalty=None, alpha=0.0001, fit_intercept=True, n_iter=7, shuffle=True, verbose=0, eta0=1.0, n_jobs=-1, random_state=0, class_weight=None, warm_start=True)
-    eclf = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft', weights=w)
+    clf1 = MLPClassifier(algorithm='l-bfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+    clf2 = DecisionTreeClassifier(min_samples_split=20, random_state=99)
+    
     # fit sub-classifiers
-    clf1 = clf1.fit(X,y)
-    clf2 = clf2.fit(X,y)
-    clf3 = clf3.fit(X,y)
-    clf4 = clf4.fit(X,y)
-    clf5 = clf5.fit(X,y)
+    clf1.fit(X, y) 
+    clf2.fit(X,y)
     # fit voting classifier
-    eclf = eclf.fit(X,y)
-
+    
     # predict & calculate training error
-    y_hat = eclf.predict(X) 
+    y_hat = clf1.predict(X) 
     test_err = 1
     for yi, y_hati in zip(y, y_hat):
         test_err += (yi == y_hati) 
