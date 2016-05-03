@@ -5,8 +5,6 @@
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import VotingClassifier
 import numpy
 from cleandata import get_data
 from cleandata import store_data
@@ -20,13 +18,12 @@ def main():
     y = [lbl for lbl in data[0:train_size,-1]]
     print(X.shape)
     print(len(y))
+    
     # Training classifier
-    clf1 = MLPClassifier(algorithm='l-bfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
-    clf2 = DecisionTreeClassifier(min_samples_split=20, random_state=99)
+    clf1 = DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None, max_leaf_nodes=None, class_weight=None, presort=False)
     
     # fit sub-classifiers
-    clf1.fit(X, y) 
-    clf2.fit(X,y)
+    clf1.fit(X,y)
     # fit voting classifier
     
     # predict & calculate training error
@@ -44,7 +41,7 @@ def main():
     # get validation data set
     X_val = data[val_start:val_end,0:-1] 
     y_val = [lbl for lbl in data[val_start:val_end,-1]]
-    y_val_hat = eclf.predict(X_val) 
+    y_val_hat = clf1.predict(X_val) 
     test_err = 1
     for yi, y_hati in zip(y_val, y_val_hat):
         test_err += (yi == y_hati) 
@@ -53,10 +50,10 @@ def main():
 
     #quiz data    
     test_data = get_data('quiz')
-    X_test = data[:,0:-1] 
+    X_test = test_data[:,:] 
     print(X_test.shape)
     y_test = [lbl for lbl in data[:,-1]]
-    y_test_hat = eclf.predict(X_test) 
+    y_test_hat = clf1.predict(X_test) 
     test_err = 1
 #    for yi, y_hati in zip(y_test, y_test_hat):
 #        test_err += (yi == y_hati) 
@@ -81,8 +78,8 @@ main()
         total = clf1_score + clf2_score + clf3_score
         w = [(clf1_score + w[0])/total, (clf2_score + w[1])/total, (clf3_score + w[2])/total]
         print(w)
-        eclf = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft', weights=w)
-        eclf = eclf.fit(X_val,y_val)
+        clf1 = VotingClassifier(estimators=[('dt', clf1), ('knn', clf2), ('svc', clf3)], voting='soft', weights=w)
+        clf1 = clf1.fit(X_val,y_val)
         # select new validation data
         val_start = val_end
         val_end = val_end + train_size 
