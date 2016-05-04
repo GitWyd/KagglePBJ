@@ -1,29 +1,39 @@
 # Kaggle Competition COMS W4771
 # PBJ
-# Philippe Wyder (c)
+# Benjamin Lerner, Philippe Wyder (c)
 
+import numpy
+import time
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-import numpy
 from cleandata import get_data
 from cleandata import store_data
 from cleandata import store_csv
-import time
 
 def main():
     start = time.time()
     MAX_TRAIN_SIZE = 126838
     train_size = MAX_TRAIN_SIZE
     val_size = 32000
-    data = get_data('data')
+    data, test_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
     print(X.shape)
     print(len(y))
 
     # Training classifier
-    clf1 = DecisionTreeClassifier(criterion='gini', splitter='best', max_depth=None, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_features=None, random_state=None, max_leaf_nodes=None, class_weight=None, presort=False)
+    clf1 = DecisionTreeClassifier(criterion='gini',
+                                  splitter='best',
+                                  max_depth=None,
+                                  min_samples_split=2,
+                                  min_samples_leaf=1,
+                                  min_weight_fraction_leaf=0.0,
+                                  max_features=None,
+                                  random_state=None,
+                                  max_leaf_nodes=None,
+                                  class_weight=None,
+                                  presort=False)
 
     # fit sub-classifiers
     clf1.fit(X,y)
@@ -56,7 +66,7 @@ def main():
 
     #quiz data
     print("Beginning quiz validation...")
-    test_data = get_data('quiz')
+    # test_data = get_data('quiz')
     X_test = test_data[:,:]
     print(X_test.shape)
     y_test = [lbl for lbl in data[:,-1]]
@@ -69,8 +79,8 @@ def main():
     store_csv(y_test_hat, "prediction")
     end = time.time()
     duration = end - start
-    print("Took this many seconds: ")
-    print(duration)
+    print("Took this many seconds: " + str(duration))
+
 main()
 '''
     # update weights with validation data sets

@@ -1,22 +1,24 @@
 import csv
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, scale, normalize
 
 def get_data(datafile):
     if datafile not in ['quiz', 'data']:
         print('Enter "quiz" or "data" you moron')
         return []
     # load data
-    csv_file_obj = csv.reader(open('data/'+ 'data' +'.csv', 'r'))
+    csv_file_obj = csv.reader(open('data/data.csv', 'r'))
     header = next(csv_file_obj)
     # doesn't seem like it does anything
     # convert the data
     data = transform_data(csv_file_obj)
 
     # Handle quiz data request
-    if datafile == 'quiz':
-        csv_file_obj_quiz = csv.reader(open('data/'+ datafile +'.csv', 'r'))
-        quiz_data = transform_data(csv_file_obj_quiz)
+    # if datafile == 'quiz':
+    csv_file_obj_quiz = csv.reader(open('data/quiz.csv', 'r'))
+    header = next(csv_file_obj_quiz)
+    quiz_data = transform_data(csv_file_obj_quiz)
+
     '''
     raw_data = []
     for row in csv_file_obj:
@@ -55,12 +57,16 @@ def get_data(datafile):
         counter = 0
         # a dictionary containing all the attributes seen thus far
         feature_types.append(type(data[0][j]))
+        seenWords[j] = {}
 
+        # TODO: fix scaling issues
         # if not categorical
         if not isinstance(data[0][j], str):
-            # TODO: fix scaling issues
             # do scaling if float values
 
+            if isinstance(data[0][j], float):
+                data[:,j] = normalize(data[:,j])
+                quiz_data[:,j] = normalize(quiz_data[:,j])
             # if isinstance(data[0][j], float):
             #     ss = StandardScaler()
             #     # data[:,j] = ss.fit_transform(data[:,j].reshape(-1, 1).T)
@@ -70,7 +76,6 @@ def get_data(datafile):
             #        quiz_data[:,j] = ss.fit_transform(quiz_data[:,j])
             continue
         # mark the feature as being "categorical" for later use in the one hot encoder
-        seenWords[j] = {}
         for i in range(len(data)):
             # for a new attribute
             if data[i][j] not in seenWords[j]:
@@ -87,15 +92,15 @@ def get_data(datafile):
         '''
     categorical_feats = [i for i in range(len(feature_types)) if feature_types[i] == type('s')]
 
-    if datafile is 'quiz':
+    # if datafile is 'quiz':
         # for j in range(len(quiz_data[0])-1):
-        for j in categorical_feats:
-            for i in range(len(quiz_data)):
-                # TODO take out this if statement. Shouldn't be necessary if running on the full data set
-                if quiz_data[i][j] in seenWords[j]:
-                    quiz_data[i][j] = seenWords[j][quiz_data[i][j]]
-                else:
-                    quiz_data[i][j] = 0
+    for j in categorical_feats:
+        for i in range(len(quiz_data)):
+            # TODO take out this if statement. Shouldn't be necessary if running on the full data set
+            if quiz_data[i][j] in seenWords[j]:
+                quiz_data[i][j] = seenWords[j][quiz_data[i][j]]
+            else:
+                quiz_data[i][j] = 0
 
     # TODO: although it may be unnecessary
     # use a line to fill in any NaNs in the data with the mean
@@ -107,12 +112,14 @@ def get_data(datafile):
     one_hot_data = enc.fit_transform(data).toarray()
 
     # one-hot-encode and return one_hot_quiz_data
-    if datafile is 'quiz':
-        fitted_quiz_data = enc.transform(quiz_data)
-        one_hot_quiz_data = fitted_quiz_data.toarray()
-        return one_hot_quiz_data
+    fitted_quiz_data = enc.transform(quiz_data)
+    one_hot_quiz_data = fitted_quiz_data.toarray()
+    # if datafile is 'quiz':
+    #     fitted_quiz_data = enc.transform(quiz_data)
+    #     one_hot_quiz_data = fitted_quiz_data.toarray()
+    #     return one_hot_quiz_data
 
-    return one_hot_data
+    return one_hot_data, one_hot_quiz_data
 
 def transform_data(csv_file_obj):
     # doesn't seem like it does anything
@@ -148,7 +155,6 @@ def store_data(datafile, data):
             continue
         for i in range(len(data)):
             if data[i][j] not in seenWords:
-                #print(data[i][j])
                 seenWords.update({data[i][j]:counter})
 
                 data[i][j]  = counter
