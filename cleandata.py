@@ -64,9 +64,10 @@ def get_data(datafile):
         if not isinstance(data[0][j], str):
             # do scaling if float values
 
-            if isinstance(data[0][j], float):
-                data[:,j] = normalize(data[:,j])
-                quiz_data[:,j] = normalize(quiz_data[:,j])
+            # TODO: attempt scaling, although this has not yielded the best results in the past
+            # if isinstance(data[0][j], float):
+            #     data[:,j] = normalize(data[:,j])
+            #     quiz_data[:,j] = normalize(quiz_data[:,j])
             # if isinstance(data[0][j], float):
             #     ss = StandardScaler()
             #     # data[:,j] = ss.fit_transform(data[:,j].reshape(-1, 1).T)
@@ -148,7 +149,7 @@ def transform_data(csv_file_obj):
 
 def store_data(datafile, data):
     filename = "data/" + datafile
-    for j in range(len(data[0])):
+    for j in range(1, len(data[0]) + 1):
         counter = 0
         seenWords = {}
         if not isinstance(data[0][j], str):
