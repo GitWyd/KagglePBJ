@@ -66,7 +66,7 @@ def main():
 #        test_err += (yi == y_hati)
 #    test_err /= X_test.shape[0]
 #    print("test: " + str(test_err))
-    store_csv(y_test_hat, "killgorythm_prediciton")
+    store_csv(y_test_hat, "prediction")
     end = time.time()
     duration = end - start
     print("Took this many seconds: ")
