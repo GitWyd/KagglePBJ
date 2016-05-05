@@ -59,11 +59,11 @@ def class_validator(classifier,data_size, p):
     
     
     
-    trainY=[]
     
     errors = []
     for i in range(len(data_partitions)):
         trainX=[]
+        trainY=[]
         for j in range(p):
             if j!=i:
                 trainX.extend(data_partitions[j])
