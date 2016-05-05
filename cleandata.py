@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, scale, normalize
+from sklearn.decomposition import PCA
 
 def get_data(datafile):
     if datafile not in ['quiz', 'data']:
@@ -120,6 +121,13 @@ def get_data(datafile):
     #     one_hot_quiz_data = fitted_quiz_data.toarray()
     #     return one_hot_quiz_data
 
+    pca = PCA()
+    pca.fit(one_hot_data)
+    pcaTrain = pca.transform(one_hot_data)    
+    pcaTest = pca.transform(one_hot_quiz)
+
+    one_hot_data = pcaTrain
+    one_hot_quiz_data = pcaTest
     return one_hot_data, one_hot_quiz_data
 
 def transform_data(csv_file_obj):
