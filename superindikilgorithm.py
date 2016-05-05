@@ -10,15 +10,16 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.kernel_ridge import KernelRidge
 from cleandata import get_data
 from cleandata import store_data
 from cleandata import store_csv
 
 def main():
     start = time.time()
-    MAX_TRAIN_SIZE = 126838
+    MAX_TRAIN_SIZE = 100000
     train_size = MAX_TRAIN_SIZE
-    val_size = 32000
+    val_size = 26838 
     data, test_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
@@ -30,8 +31,21 @@ def main():
     # Training classifier
 
     # TODO: ExtraTreesClassifier
-
-    clf1 = RandomForestClassifier(      n_estimators=200,
+    clf1 = SVC( C=1.0, 
+                kernel='rbf', 
+                degree=3, 
+                gamma='auto', 
+                coef0=0.0, 
+                shrinking=True, 
+                probability=False, 
+                tol=0.001, 
+                cache_size=200, 
+                class_weight=None, 
+                verbose=False, 
+                max_iter=-1, 
+                decision_function_shape=None, 
+                random_state=None)
+    '''    clf1 = RandomForestClassifier(      n_estimators=200,
                                         criterion='gini',
                                         max_depth=None,
                                         min_samples_split=2,
@@ -47,7 +61,8 @@ def main():
                                         warm_start=False,
                                         class_weight=None
                                   )
-   # fit sub-classifiers
+    '''
+    # fit sub-classifiers
     clf1.fit(X,y)
     # pickle.dump(clf1, open('experimental_classifier.pickle', 'wb'))
 
@@ -69,8 +84,8 @@ def main():
     # TODO: put this back in
     # if MAX_TRAIN_SIZE - train_size > val_size:
     print("Beginning test validation...")
-    X_val = data[:val_size,0:-1]
-    y_val = [lbl for lbl in data[:val_size,-1]]
+    X_val = data[MAX_TRAIN_SIZE:(MAX_TRAIN_SIZE+val_size),0:-1]
+    y_val = [lbl for lbl in data[MAX_TRAIN_SIZE:(MAX_TRAIN_SIZE+val_size),-1]]
     y_val_hat = clf1.predict(X_val)
     test_err = 1
     for yi, y_hati in zip(y_val, y_val_hat):
