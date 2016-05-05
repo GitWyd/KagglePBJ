@@ -31,8 +31,8 @@ def main():
 
     # TODO: ExtraTreesClassifier
 
-    clf1 = RandomForestClassifier(      n_estimators=110,
-                                        criterion='gini',
+    clf1 = RandomForestClassifier(      n_estimators=100,
+                                        criterion='entropy',
                                         max_depth=None,
                                         min_samples_split=2,
                                         min_samples_leaf=1,
