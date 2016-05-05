@@ -31,7 +31,7 @@ def main():
 
     # TODO: ExtraTreesClassifier
 
-    clf1 = DecisionTreeClassifier(      n_estimators=100,
+    clf1 = DecisionTreeClassifier(      n_estimators=110,
                                         criterion='gini',
                                         max_depth=None,
                                         min_samples_split=2,
@@ -43,7 +43,7 @@ def main():
                                         oob_score=False,
                                         n_jobs=-1,
                                         random_state=None,
-                                        verbose=0,
+                                        verbose=3,
                                         warm_start=False,
                                         class_weight=None
                                   )
@@ -85,11 +85,6 @@ def main():
     print(X_test.shape)
     y_test = [lbl for lbl in data[:,-1]]
     y_test_hat = clf1.predict(X_test)
-    test_err = 1
-#    for yi, y_hati in zip(y_test, y_test_hat):
-#        test_err += (yi == y_hati)
-#    test_err /= X_test.shape[0]
-#    print("test: " + str(test_err))
     store_csv(y_test_hat, "experimental_prediction")
     end = time.time()
     duration = end - start
