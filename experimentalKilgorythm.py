@@ -15,18 +15,23 @@ from cleandata import store_data
 from cleandata import store_csv
 
 def main():
+    '''
+        FOR FUTURE REFERENCE:
+        "train" refers to the data set which is trained
+        "test" refers to the untrained portion of the data set on which the training is validated
+        "quiz" refers to the unlabeled points which we attempt to label and then submit to kaggle
+    '''
     start = time.time()
+    # DO NOT MODIFY MAX_TRAIN_SIZE
     MAX_TRAIN_SIZE = 126838
-    train_size = MAX_TRAIN_SIZE
-    val_size = 32000
-    data, test_data = get_data('data')
+    train_size = 100000
+    val_size = 20000
+
+    print('Getting data...')
+    data, quiz_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
-    print(X.shape)
-    print(len(y))
-
-#    scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
-#    X = scaler.fit_transform(X)
+    print('Received data, took this many seconds: ' + str(time.time() - start))
     # Training classifier
 
     # TODO: ExtraTreesClassifier
@@ -55,40 +60,32 @@ def main():
 
     # predict & calculate training error
     y_hat = clf1.predict(X)
-    test_err = 1
+    train_err = 1
     for yi, y_hati in zip(y, y_hat):
-        test_err += (yi == y_hati)
-    test_err /= train_size
-    print("train: " + str(test_err))
+        train_err += (yi == y_hati)
+    train_err /= train_size
+    print("Train err: " + str(train_err))
 
-    # validation data - calculate valdiation error
-    # val_start = train_size
-    # val_end = train_size + val_size
-
-    # get validation data set
-    # TODO: put this back in
-    # if MAX_TRAIN_SIZE - train_size > val_size:
     print("Beginning test validation...")
-    X_val = data[:val_size,0:-1]
-    y_val = [lbl for lbl in data[:val_size,-1]]
-    y_val_hat = clf1.predict(X_val)
-    test_err = 1
-    for yi, y_hati in zip(y_val, y_val_hat):
-        test_err += (yi == y_hati)
-    test_err /= X_val.shape[0]
-    print("val: " + str(test_err))
+    # check to make sure we won't have an index out of bounds error
+    if train_size + val_size < MAX_TRAIN_SIZE:
+        X_val = data[train_size:val_size,0:-1]
+        y_val = [lbl for lbl in data[train_size:val_size,-1]]
+        y_val_hat = clf1.predict(X_val)
+        test_err = 1
+        for yi, y_hati in zip(y_val, y_val_hat):
+            test_err += (yi == y_hati)
+        test_err /= X_val.shape[0]
+        print("Test error: " + str(test_err))
 
-    #quiz data
     print("Beginning quiz validation...")
-    # test_data = get_data('quiz')
-    X_test = test_data[:,:]
-    print(X_test.shape)
+    X_test = quiz_data[:,:]
     y_test = [lbl for lbl in data[:,-1]]
     y_test_hat = clf1.predict(X_test)
     store_csv(y_test_hat, "experimental_prediction")
     end = time.time()
     duration = end - start
-    print("Took this many seconds: " + str(duration))
+    print("Finished. Total duration: " + str(duration))
 
 main()
 '''
