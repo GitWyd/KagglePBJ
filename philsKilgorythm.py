@@ -7,6 +7,7 @@ import time
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
+from sklearn.linear_model import RandomizedLogisticRegression
 from cleandata import get_data
 from cleandata import store_data
 from cleandata import store_csv
@@ -21,7 +22,23 @@ def main():
     y = [lbl for lbl in data[0:train_size,-1]]
     print(X.shape)
     print(len(y))
-
+    
+    clfR = RandomizedLogisticRegression(C=1, 
+                                        scaling=0.5, 
+                                        sample_fraction=0.75, 
+                                        n_resampling=200, 
+                                        selection_threshold=0.25, 
+                                        tol=0.001, 
+                                        fit_intercept=True, 
+                                        verbose=False, 
+                                        normalize=True, 
+                                        random_state=None, 
+                                        n_jobs=1, 
+                                        pre_dispatch='3*n_jobs', 
+                                       )  
+    X_new = clfR.fit_transform(X,y) 
+    X = X_new  
+       
     # Training classifier
     clf1 = DecisionTreeClassifier(criterion='gini',
                                   splitter='best',
