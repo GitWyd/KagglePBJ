@@ -20,11 +20,14 @@ from sklearn.preprocessing import StandardScaler
 from cleandata import get_data
 from cleandata import store_data
 from cleandata import store_csv
+from sklearn.decomposition import PCA
+
 
 def main():
-    
-    errors= class_validator(expKilgorithm,20000,5)
+    data_size=20000    
+    errors= class_validator(expKilgorithm,data_size,5)
     print(errors)
+    print("Mean of errors:")
     print(np.mean(errors))
     
 def class_validator(classifier,data_size, p):
@@ -39,6 +42,13 @@ def class_validator(classifier,data_size, p):
 
 
     X = data[:,0:-1]
+
+    #######
+    # TEST PCA HERE
+    ####
+    pca = PCA()
+    
+
     y = [lbl for lbl in data[:,-1]]
     #array of data partitions
     data_partitions = np.array_split(X,p)
@@ -49,17 +59,30 @@ def class_validator(classifier,data_size, p):
     
     
     
-    trainX=[]
     trainY=[]
     
     errors = []
     for i in range(len(data_partitions)):
+        trainX=[]
         for j in range(p):
             if j!=i:
                 trainX.extend(data_partitions[j])
                 trainY.extend(label_partitions[j])
         
-        errors.append(classifier(trainX,trainY,data_partitions[i],label_partitions[i]))
+        
+
+        valX = data_partitions[i]
+        valY = label_partitions[i] 
+
+
+        ###PCA TEST
+        """        
+        pca.fit(trainX)
+        trainX = pca.transform(trainX)
+        valX = pca.transform(valX)
+        """
+
+        errors.append(classifier(trainX,trainY,valX,valY))
         
     return errors
 
