@@ -8,6 +8,7 @@ import pickle
 from sklearn import datasets
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.preprocessing import StandardScaler
 from cleandata import get_data
 from cleandata import store_data
@@ -28,7 +29,9 @@ def main():
 #    X = scaler.fit_transform(X)
     # Training classifier
 
-    clf1 = RandomForestClassifier(      n_estimators=100,
+    # TODO: ExtraTreesClassifier
+
+    clf1 = DecisionTreeClassifier(      n_estimators=100,
                                         criterion='gini',
                                         max_depth=None,
                                         min_samples_split=2,
@@ -46,7 +49,7 @@ def main():
                                   )
    # fit sub-classifiers
     clf1.fit(X,y)
-    pickle.dump(clf1, open('experimental_classifier.pickle', 'wb'))
+    # pickle.dump(clf1, open('experimental_classifier.pickle', 'wb'))
 
     # fit voting classifier
 
