@@ -149,7 +149,7 @@ def transform_data(csv_file_obj):
 
 def store_data(datafile, data):
     filename = "data/" + datafile
-    for j in range(1, len(data[0]) + 1):
+    for j in range(len(data[0])):
         counter = 0
         seenWords = {}
         if not isinstance(data[0][j], str):
@@ -172,4 +172,5 @@ def store_csv(y_hat, filename):
     file = open(outfile, 'w+')
     file.write("Id,Prediction\n")
     for i, yi in enumerate(y_hat):
-        file.write(str(i) + "," + str(int(yi)) + "\n")
+        # added + 1 because the data are indexed starting at 1
+        file.write(str(i+1) + "," + str(int(yi)) + "\n")
