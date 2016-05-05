@@ -23,16 +23,20 @@ from cleandata import store_csv
 
 def main():
     
-    errors= class_validator(expKilgorithm,5)
+    errors= class_validator(expKilgorithm,20000,5)
     print(errors)
+    print(np.mean(errors))
     
-def class_validator(classifier, p):
+def class_validator(classifier,data_size, p):
     """
-        classifier must be take (trainX, trainY, valX,valY) and p is number 
-        of partitions
+        classifier must be take (trainX, trainY, valX,valY), data_size is number of
+        of training points and p is number of partitions
     """
+    print("getting data")
     data, quiz_data = get_data('data')
-    data = data[:10000]
+    data = data[:data_size]
+    print("data got")
+
 
     X = data[:,0:-1]
     y = [lbl for lbl in data[:,-1]]
@@ -68,13 +72,7 @@ def expKilgorithm(X,y,X_val, y_val):
         "quiz" refers to the unlabeled points which we attempt to label and then submit to kaggle
     '''
     start = time.time()
-    # DO NOT MODIFY MAX_TRAIN_SIZE
-    MAX_TRAIN_SIZE = 126838
-    train_size = 100000
-    val_size = 20000
 
-    print('Getting data...')
-    data, quiz_data = get_data('data')
     """
     
     X = data[train_start_idx:train_end_idx,0:-1]
@@ -109,10 +107,11 @@ def expKilgorithm(X,y,X_val, y_val):
 
     # predict & calculate training error
     y_hat = clf1.predict(X)
-    train_err = 1
+    train_err = 0
     for yi, y_hati in zip(y, y_hat):
-        train_err += (yi == y_hati)
-    train_err /= train_size
+        train_err += (yi != y_hati)
+    train_err = float(train_err)/float(len(y))
+    
     print("Train err: " + str(train_err))
 
     print("Beginning test validation...")
