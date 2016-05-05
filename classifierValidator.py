@@ -49,7 +49,7 @@ def class_validator(classifier, p):
     trainY=[]
     
     errors = []
-    for i in len(data_partitions):
+    for i in range(len(data_partitions)):
         for j in range(p):
             if j!=i:
                 trainX.extend(data_partitions[j])
@@ -116,19 +116,17 @@ def expKilgorithm(X,y,X_val, y_val):
     print("Train err: " + str(train_err))
 
     print("Beginning test validation...")
-    # check to make sure we won't have an index out of bounds error
-    if train_size + val_size < MAX_TRAIN_SIZE:
-        """
-        X_val = data[test_start_idx:test_end_idx,0:-1]
-        y_val = [lbl for lbl in data[test_start_idx:test_end_idx,-1]]
-        """
+  
         
-        y_val_hat = clf1.predict(X_val)
-        test_err = 1
-        for yi, y_hati in zip(y_val, y_val_hat):
-            test_err += (yi == y_hati)
-        test_err /= X_val.shape[0]
-        print("Test error: " + str(test_err))
+    y_val_hat = clf1.predict(X_val)
+    test_err = 0
+    for yi, y_hati in zip(y_val, y_val_hat):
+        test_err += (yi != y_hati)
+    print(len(y_val))
+    print(len(y_val_hat))
+
+    test_err = float(test_err)/float(len((y_val))) 
+    print("Test error: " + str(test_err))
     
     return test_err
 
