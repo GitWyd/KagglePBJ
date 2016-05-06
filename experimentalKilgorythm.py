@@ -5,6 +5,7 @@
 import numpy
 import time
 import pickle
+import getpass
 from sklearn import datasets
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -46,7 +47,8 @@ def main():
                                         max_leaf_nodes=None,
                                         bootstrap=True,
                                         oob_score=False,
-                                        n_jobs=-1,
+                                        # don't destroy my computer
+                                        n_jobs= -1 if getpass.getuser() == 'ubuntu' else 1,
                                         random_state=None,
                                         verbose=3,
                                         warm_start=False,
@@ -54,6 +56,7 @@ def main():
                                   )
    # fit sub-classifiers
     clf1.fit(X,y)
+    # print([estimator.tree_.max_depth for estimator in clf1.estimators_])
     # pickle.dump(clf1, open('experimental_classifier.pickle', 'wb'))
 
     # fit voting classifier
@@ -69,8 +72,8 @@ def main():
     print("Beginning test validation...")
     # check to make sure we won't have an index out of bounds error
     if train_size + val_size < MAX_TRAIN_SIZE:
-        X_val = data[train_size:val_size,0:-1]
-        y_val = [lbl for lbl in data[train_size:val_size,-1]]
+        X_val = data[train_size : train_size + val_size, 0:-1]
+        y_val = [lbl for lbl in data[train_size : train_size + val_size, -1]]
         y_val_hat = clf1.predict(X_val)
         test_err = 1
         for yi, y_hati in zip(y_val, y_val_hat):
