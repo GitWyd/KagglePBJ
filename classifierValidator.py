@@ -24,23 +24,34 @@ from sklearn.decomposition import PCA
 
 
 def main():
-    data_size=20000    
-    errors= class_validator(expKilgorithm,data_size,5)
-    print(errors)
-    print("Mean of errors:")
-    print(np.mean(errors))
+    data_size=120000 
+    print("getting data")
+    data, quiz_data = get_data('data')
+    print("data got")
+     
+    results = []
+    for p in range(50,200,5):
+        errors= class_validator(expKilgorithm,p,data,data_size,5)
+        print(p)
+        print("Mean of errors:")
+        print(np.mean(errors))
+        results.append(np.mean(errors))
+        print("\n")
     
-def class_validator(classifier,data_size, p):
+
+    iteration=50
+    for i in results:
+        print(iteration)
+        print(i)
+        iteration+=5
+    
+def class_validator(classifier,parameter,data,data_size,p):
     """
         classifier must be take (trainX, trainY, valX,valY), data_size is number of
         of training points and p is number of partitions
     """
-    print("getting data")
-    data, quiz_data = get_data('data')
+
     data = data[:data_size]
-    print("data got")
-
-
     X = data[:,0:-1]
 
     #######
@@ -76,18 +87,18 @@ def class_validator(classifier,data_size, p):
 
 
         ###PCA TEST
-        """        
+        """
         pca.fit(trainX)
         trainX = pca.transform(trainX)
         valX = pca.transform(valX)
         """
 
-        errors.append(classifier(trainX,trainY,valX,valY))
+        errors.append(classifier(trainX,trainY,valX,valY,parameter))
         
     return errors
 
 
-def expKilgorithm(X,y,X_val, y_val):
+def expKilgorithm(X,y,X_val, y_val,p):
     '''
         FOR FUTURE REFERENCE:
         "train" refers to the data set which is trained
@@ -106,7 +117,7 @@ def expKilgorithm(X,y,X_val, y_val):
 
     # TODO: ExtraTreesClassifier
 
-    clf1 = RandomForestClassifier(      n_estimators=100,
+    clf1 = RandomForestClassifier(      n_estimators=p,
                                         criterion='gini',
                                         max_depth=None,
                                         min_samples_split=2,
