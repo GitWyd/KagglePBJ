@@ -1,0 +1,14 @@
+#### rates on our best time (I believe it was randomforests) ####
+train: 0.999227360886
+Beginning test validation...
+val: 0.99928125
+
+#### okay ####
+train: 0.999235244958
+Beginning test validation...
+val: 0.99940625
+
+#### eh ####
+train: 0.999243129031
+Beginning test validation...
+val: 0.99946875
