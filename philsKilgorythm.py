@@ -15,14 +15,15 @@ from cleandata import store_csv
 def main():
     start = time.time()
     MAX_TRAIN_SIZE = 126838
-    train_size = MAX_TRAIN_SIZE
-    val_size = 32000
+    train_size = 100000
+    val_size = MAX_TRAIN_SIZE - train_size
     data, test_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
     print(X.shape)
     print(len(y))
     
+    # use randomized log regression for feature selection    
     clfR = RandomizedLogisticRegression(C=1, 
                                         scaling=0.5, 
                                         sample_fraction=0.75, 
@@ -30,14 +31,20 @@ def main():
                                         selection_threshold=0.25, 
                                         tol=0.001, 
                                         fit_intercept=True, 
-                                        verbose=False, 
+                                        verbose=True, 
                                         normalize=True, 
                                         random_state=None, 
-                                        n_jobs=1, 
+                                        n_jobs=-1, 
                                         pre_dispatch='3*n_jobs', 
                                        )  
+    # Fit Regression & Transform Train Data to selected features
     X_new = clfR.fit_transform(X,y) 
-    X = X_new  
+    X = X_new
+    ## transform Quiz Dataset
+    test_data = clfR.transform(test_data)
+
+    disp('Dimensions after feature Reduction: ' + str(X.shape) ) 
+    print("Elapsed Time For Feature Reduction: " + str(duration))
        
     # Training classifier
     clf1 = DecisionTreeClassifier(criterion='gini',
@@ -55,6 +62,7 @@ def main():
     # fit sub-classifiers
     clf1.fit(X,y)
     # fit voting classifier
+    print("Elapsed Time For Classifier Training: " + str(duration))
 
     # predict & calculate training error
     y_hat = clf1.predict(X)
@@ -70,16 +78,16 @@ def main():
 
     # get validation data set
     # TODO: put this back in
-    # if MAX_TRAIN_SIZE - train_size > val_size:
-    #     print("Beginning test validation...")
-    #     X_val = data[val_start:val_end,0:-1]
-    #     y_val = [lbl for lbl in data[val_start:val_end,-1]]
-    #     y_val_hat = clf1.predict(X_val)
-    #     test_err = 1
-    #     for yi, y_hati in zip(y_val, y_val_hat):
-    #         test_err += (yi == y_hati)
-    #     test_err /= X_val.shape[0]
-    #     print("val: " + str(test_err))
+    if MAX_TRAIN_SIZE - train_size > val_size:
+         print("Beginning test validation...")
+         X_val = data[val_start:val_end,0:-1]
+         y_val = [lbl for lbl in data[val_start:val_end,-1]]
+         y_val_hat = clf1.predict(X_val)
+         test_err = 1
+         for yi, y_hati in zip(y_val, y_val_hat):
+             test_err += (yi == y_hati)
+         test_err /= X_val.shape[0]
+         print("val: " + str(test_err))
 
     #quiz data
     print("Beginning quiz validation...")
