@@ -10,10 +10,9 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.preprocessing import StandardScaler
-from cleandata_NoHot import get_data
-from cleandata_NoHot import store_data
-from cleandata_NoHot import store_csv
-from classifierValidator import class_validator
+from cleandata import get_data
+from cleandata import store_data
+from cleandata import store_csv
 def main():
     
     '''
@@ -22,7 +21,6 @@ def main():
         "test" refers to the untrained portion of the data set on which the training is validated
         "quiz" refers to the unlabeled points which we attempt to label and then submit to kaggle
     '''
-    start = time.time()
     # DO NOT MODIFY MAX_TRAIN_SIZE
     MAX_TRAIN_SIZE = 126838
     parameter = 100
@@ -33,8 +31,7 @@ def main():
     data, quiz_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
-    print('Received data, took this many seconds: ' + str(time.time() - start))
-    
+    print('Received data, took this many seconds: ')    
     # create validation set 
     val_start = train_size
     val_end = train_size+val_size
@@ -42,17 +39,26 @@ def main():
     if val_end <= MAX_TRAIN_SIZE:
         X_val = data[val_start:val_end,0:-1]
         y_val = [lbl for lbl in data[val_start:val_end,-1]]
-    for p in range(50, 400, 10): 
-        class_validator(classifier, p, data, train_data, 5)
 
-def classifier(X, y, X_val, y_val, parameter):
+    f = open('Analysis_forestOptimizer.csv', 'w+') 
+    f.write('n_iter,alpha,average,score\n')
+    for n_est in [90,100,115,140]:
+        for crit in ['gini','entropy']:
+            for max_dep in [80,100,150,200]:
+                for warm_strt in  [True,False]:
+                    f.write(str(n_est) +',' + str(crit) + ',' + str(max_dep) + ',' + str(warm_strt) + ','+ str(classifier(X, y, X_val, y_val, n_est, crit, max_dep, warm_strt)) + '\n')
+ 
+    f.close() 
+
+def classifier(X, y, X_val, y_val, n_est, crit, max_dep, warm_strt):
     # Training classifier
+    start = time.time()
 
     # TODO: ExtraTreesClassifier
 
-    clf1 = RandomForestClassifier(      n_estimators= parameter,
-                                        criterion='gini',
-                                        max_depth=None,
+    clf1 = RandomForestClassifier(      n_estimators= n_est,
+                                        criterion=crit,
+                                        max_depth=max_dep,
                                         min_samples_split=2,
                                         min_samples_leaf=1,
                                         # min_weight_fraction_leaf=0.0001,
@@ -63,7 +69,7 @@ def classifier(X, y, X_val, y_val, parameter):
                                         n_jobs=-1,
                                         random_state=None,
                                         verbose=False,
-                                        warm_start=False,
+                                        warm_start=warm_strt,
                                         class_weight=None
                                   )
    # fit sub-classifiers
@@ -77,7 +83,7 @@ def classifier(X, y, X_val, y_val, parameter):
     train_err = 1
     for yi, y_hati in zip(y, y_hat):
         train_err += (yi == y_hati)
-    train_err /= train_size
+    train_err /= X.shape[0]
     print("Train err: " + str(train_err))
 
     print("Beginning test validation...")
@@ -87,7 +93,7 @@ def classifier(X, y, X_val, y_val, parameter):
         test_err += (yi == y_hati)
     test_err /= X_val.shape[0]
     print("Test error: " + str(test_err))
-
+    
     '''
     print("Beginning quiz validation...")
     X_test = quiz_data[:,:]
@@ -97,6 +103,7 @@ def classifier(X, y, X_val, y_val, parameter):
     '''
     end = time.time()
     duration = end - start
+    return test_err
     print("Finished. Total duration: " + str(duration))
 
 main()

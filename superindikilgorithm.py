@@ -8,49 +8,49 @@ import pickle
 from sklearn import datasets
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.kernel_ridge import KernelRidge
-from cleandata import get_data
+from sklearn.linear_model import SGDClassifier
+from cleandata_NoHot import get_data
 from cleandata import store_data
 from cleandata import store_csv
-
+#from classifierValidator import class_validator
 def main():
     start = time.time()
-    MAX_TRAIN_SIZE = 100000
-    train_size = MAX_TRAIN_SIZE
-    val_size = 26838 
+    MAX_TRAIN_SIZE = 126838
+    train_size = 99000
+    val_size = MAX_TRAIN_SIZE-train_size 
     data, test_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
     print(X.shape)
     print(len(y))
+    
+    val_start = train_size
+    val_end = train_size + val_size
+    X_val = data[val_start:val_end,0:-1]
+    y_val = [lbl for lbl in data[val_start:val_end,-1]]
+    
+    f = open('Analysis_superindi.csv', 'w+') 
+    f.write('n_iter,alpha,average,score\n')
+    for i in range(1,100,3):
+        for j in [0.01, 0.001, 0.0005, 0.0001, 0.00001]:
+            for k in range(1,10):
+                f.write(str(i) +',' + str(j) + ',' + str(k) + ',' + str(classifier(X, y, X_val, y_val, i, j, k)) + '\n')
+    f.close() 
 
+def classifier(X, y, X_val, y_val, p, alpha,k):
 #    scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
 #    X = scaler.fit_transform(X)
     # Training classifier
-
+    clf1 = SGDClassifier(loss='log', penalty='l1', alpha=alpha, l1_ratio=0.15, fit_intercept=False, n_iter=p, shuffle=True, verbose=1, epsilon=0.1, n_jobs=32, random_state=None, learning_rate='optimal', eta0=0.0, power_t=0.25, class_weight=None, warm_start=False, average=k)
+ 
     # TODO: ExtraTreesClassifier
-    clf1 = SVC( C=1.0, 
-                kernel='rbf', 
-                degree=3, 
-                gamma='auto', 
-                coef0=0.0, 
-                shrinking=True, 
-                probability=False, 
-                tol=0.001, 
-                cache_size=200, 
-                class_weight=None, 
-                verbose=False, 
-                max_iter=-1, 
-                decision_function_shape=None, 
-                random_state=None)
-    '''    clf1 = RandomForestClassifier(      n_estimators=200,
+    
+    '''clf1 = RandomForestClassifier(      n_estimators=1000,
                                         criterion='gini',
-                                        max_depth=None,
+                                        max_depth=11,
                                         min_samples_split=2,
                                         min_samples_leaf=1,
-                                        # min_weight_fraction_leaf=0.0001,
+#                                        min_weight_fraction_leaf=0.0001,
                                         max_features='auto',
                                         max_leaf_nodes=None,
                                         bootstrap=True,
@@ -58,10 +58,10 @@ def main():
                                         n_jobs=-1,
                                         random_state=None,
                                         verbose=3,
-                                        warm_start=False,
+                                        warm_start=True,
                                         class_weight=None
                                   )
-    '''
+    ''' 
     # fit sub-classifiers
     clf1.fit(X,y)
     # pickle.dump(clf1, open('experimental_classifier.pickle', 'wb'))
@@ -73,25 +73,23 @@ def main():
     test_err = 1
     for yi, y_hati in zip(y, y_hat):
         test_err += (yi == y_hati)
-    test_err /= train_size
+    test_err /= X.shape[0]
     print("train: " + str(test_err))
 
-    # validation data - calculate valdiation error
-    # val_start = train_size
-    # val_end = train_size + val_size
 
     # get validation data set
     # TODO: put this back in
     # if MAX_TRAIN_SIZE - train_size > val_size:
+    # validation data - calculate valdiation error
+    
     print("Beginning test validation...")
-    X_val = data[MAX_TRAIN_SIZE:(MAX_TRAIN_SIZE+val_size),0:-1]
-    y_val = [lbl for lbl in data[MAX_TRAIN_SIZE:(MAX_TRAIN_SIZE+val_size),-1]]
     y_val_hat = clf1.predict(X_val)
     test_err = 1
     for yi, y_hati in zip(y_val, y_val_hat):
         test_err += (yi == y_hati)
     test_err /= X_val.shape[0]
     print("val: " + str(test_err))
+    return test_err
 
     #quiz data
     print("Beginning quiz validation...")
@@ -105,7 +103,7 @@ def main():
 #        test_err += (yi == y_hati)
 #    test_err /= X_test.shape[0]
 #    print("test: " + str(test_err))
-    store_csv(y_test_hat, "experimental_prediction")
+    store_csv(y_test_hat, "superindiekilgorithm_prediction")
     end = time.time()
     duration = end - start
     print("Took this many seconds: " + str(duration))

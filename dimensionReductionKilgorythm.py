@@ -6,8 +6,7 @@ import numpy
 import time
 from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import RandomizedLogisticRegression
-from sklearn.linear_model import RandomizedLasso
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from cleandata import get_data
 from cleandata import store_data
 from cleandata import store_csv
@@ -15,30 +14,17 @@ import numpy as np
 def main():
     start = time.time()
     MAX_TRAIN_SIZE = 126838
-    train_size = 20000
+    train_size = 100000
     val_size = MAX_TRAIN_SIZE - train_size
     data, test_data = get_data('data')
     X = data[0:train_size,0:-1]
     y = [lbl for lbl in data[0:train_size,-1]]
     print(X.shape)
     print(len(y))
-    # use randomized log regression for feature selection    
-    clfR = RandomizedLasso(     alpha='aic', 
-                                scaling=0.5, 
-                                sample_fraction=0.75, 
-                                n_resampling=200, 
-                                selection_threshold=0.25, 
-                                fit_intercept=True, 
-                                verbose=False, 
-                                normalize=True, 
-                                precompute='auto', 
-                                max_iter=500, 
-                                eps=2.2204460492503131e-16, 
-                                random_state=None, 
-                                n_jobs=1, 
-                                pre_dispatch='3*n_jobs', 
-                                #memory=Memory(cachedir=None)     
-                          )  
+    
+    clfR = LinearDiscriminantAnalysis(solver='eigen', shrinkage='auto', priors=None, n_components=None, store_covariance=False, tol=0.0001)
+ 
+    
     # fit regresion
     clfR.fit(X,y)
 
@@ -50,9 +36,35 @@ def main():
     test_data = np.array(test_data).copy() # little hack to fix assignment dest. read only error
     transformed_test_data = clfR.transform(test_data)
     test_data = transformed_test_data
+    
+    # validation data - calculate valdiation error
+    val_start = train_size
+    val_end = train_size + val_size
 
+    # get validation data set
+    # TODO: put this back in
+    if MAX_TRAIN_SIZE - train_size > val_size:
+         print("Beginning test validation...")
+         X_val = data[val_start:val_end,0:-1]
+         y_val = [lbl for lbl in data[val_start:val_end,-1]]
+         y_val_hat = clfR.predict(X_val)
+         test_err = 1
+         for yi, y_hati in zip(y_val, y_val_hat):
+             test_err += (yi == y_hati)
+         test_err /= X_val.shape[0]
+         print("val: " + str(test_err))
+     
     print('Dimensions after feature Reduction: ' + str(X.shape) ) 
     print("Elapsed Time For Feature Reduction: " + str(duration))
+    # saving reduced Dataset
+    reducedData = np.concatenate((X, Y), axis=1)
+    print(reducedData.shape)
+    f = open('reducedDatasets/reducedX', 'w+')
+    numpy.save(f, X, allow_pickle=True, fix_imports=True) 
+    f.close()
+    f = open('reducedDatasets/reducedX', 'w+')
+    numpy.save(f, X, allow_pickle=True, fix_imports=True) 
+    f.close()
     
     # Training classifier
     clf1 = DecisionTreeClassifier(criterion='gini',
