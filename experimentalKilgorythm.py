@@ -5,6 +5,7 @@
 import numpy
 import time
 import pickle
+import getpass
 from sklearn import datasets
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -37,7 +38,7 @@ def main():
 
     # TODO: ExtraTreesClassifier
 
-    clf1 = RandomForestClassifier(n_estimators=130, n_jobs=-1)
+    clf1 = RandomForestClassifier(n_estimators=130, n_jobs= -1 if getpass.getuser() == 'ubuntu' else 1)
     #clf1 = RandomForestClassifier(      n_estimators=200,
     #                                    criterion='gini',
     #                                    max_depth=None,
@@ -56,6 +57,7 @@ def main():
     #                              )
    # fit sub-classifiers
     clf1.fit(X,y)
+    # print([estimator.tree_.max_depth for estimator in clf1.estimators_])
     # pickle.dump(clf1, open('experimental_classifier.pickle', 'wb'))
 
     # fit voting classifier
