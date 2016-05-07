@@ -1,0 +1,1 @@
+talk about the data visualization, cross validation, all that stuff
